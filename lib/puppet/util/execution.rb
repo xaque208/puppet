@@ -81,6 +81,7 @@ module Util::Execution
         :uid => nil,
         :gid => nil,
         :combine => true,
+        :stdinstring => nil,
         :stdinfile => nil,
         :squelch => false,
         :override_locale => true,
@@ -104,7 +105,11 @@ module Util::Execution
 
     null_file = Puppet.features.microsoft_windows? ? 'NUL' : '/dev/null'
 
-    stdin = File.open(options[:stdinfile] || null_file, 'r')
+    if options[:stdinstring]
+      stdin = StringIO.new(string=options[:stdinstring], 'r')
+    else
+      stdin = File.open(options[:stdinfile] || null_file, 'r')
+    end
     stdout = options[:squelch] ? File.open(null_file, 'w') : Tempfile.new('puppet')
     stderr = options[:combine] ? stdout : File.open(null_file, 'w')
 
